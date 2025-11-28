@@ -1,0 +1,14 @@
+parameters:
+  glightbox_sets:
+    ## fallback ist zwingend damit das script in js_glightbox.html5 funktioniert
+    fallback:
+      selector: 'a[data-lightbox].fallback'
+
+    ## start der eigenen Glightbox Sets  
+    default:
+      selector: '.galleryDefault a[data-lightbox]'
+      loop: true
+    fade:
+      selector: '.galleryFade a[data-lightbox]'
+      slideEffect: 'fade'
+    ## stopp
