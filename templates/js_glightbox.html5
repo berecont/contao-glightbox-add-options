@@ -1,0 +1,72 @@
+<?php
+
+use Contao\Template;
+use Contao\System;
+
+$GLOBALS['TL_CSS']['glightbox'] = 'bundles/contaoglightbox/css/glightbox.min.css|static';
+echo Template::generateScriptTag('bundles/contaoglightbox/js/glightbox.min.js', false, null);
+
+$container = System::getContainer();
+$sets = $container->hasParameter('glightbox_sets')
+    ? $container->getParameter('glightbox_sets')
+    : [];
+
+// In JSON für JS
+$setsJson = json_encode($sets, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+?>
+<script>
+(function(){
+  'use strict';
+
+  // 1. data-lightbox -> data-gallery wie gehabt
+  document.querySelectorAll('a[data-lightbox]').forEach((element) => {
+    if (!!element.dataset.lightbox) {
+      element.setAttribute('data-gallery', element.dataset.lightbox);
+    } else if (window.crypto && window.crypto.randomUUID) {
+      element.setAttribute('data-gallery', crypto.randomUUID());
+    }
+  });
+
+  const sets = <?= $setsJson ?> || {};
+
+  // 2. Alle Selector der Nicht-Fallback-Sets einsammeln
+  const nonFallbackSelectors = Object.keys(sets)
+    .filter((key) => key !== 'fallback')
+    .map((key) => sets[key] && sets[key].selector)
+    .filter((selector) => !!selector);
+
+  // 3. Alle Elemente, die zu einem Nicht-Fallback-Set gehören, in ein Set packen
+  const assignedElements = new Set();
+
+  nonFallbackSelectors.forEach((selector) => {
+    try {
+      document.querySelectorAll(selector).forEach((el) => {
+        assignedElements.add(el);
+      });
+    } catch (e) {
+      // Falls mal ein ungültiger Selector in der YAML steht, crasht nicht das ganze Script
+      console.warn('Invalid GLightbox selector in config:', selector, e);
+    }
+  });
+
+  // 4. Fallback-Klasse an alle übrigen a[data-lightbox]
+  document.querySelectorAll('a[data-lightbox]').forEach((el) => {
+    if (!assignedElements.has(el)) {
+      el.classList.add('fallback');
+    }
+  });
+
+  // 5. Für jedes Set eine eigene GLightbox-Instanz starten
+  Object.keys(sets).forEach((key) => {
+    const cfg = sets[key] || {};
+
+    if (!cfg.selector) {
+      // Sicherheits-Fallback, falls in der YAML etwas vergessen wurde
+      cfg.selector = 'a[data-lightbox]';
+    }
+
+    GLightbox(cfg);
+  });
+})();
+</script>
