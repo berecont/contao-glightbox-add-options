@@ -53,7 +53,7 @@ $setsJson = json_encode($sets, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
   // 4. Fallback-Klasse an alle übrigen a[data-lightbox]
   document.querySelectorAll('a[data-lightbox]').forEach((el) => {
     if (!assignedElements.has(el)) {
-      el.classList.add('fallback');
+      el.classList.add('gboxDefault');
     }
   });
 
