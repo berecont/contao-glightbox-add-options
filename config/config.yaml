@@ -2,10 +2,10 @@ parameters:
   glightbox_sets:
     ## fallback ist zwingend damit das script in js_glightbox.html5 funktioniert
     fallback:
-      selector: 'a[data-lightbox].fallback'
+      selector: 'a[data-lightbox].gboxDefault'
 
     ## start der eigenen Glightbox Sets  
-    default:
+    loop:
       selector: '.galleryDefault a[data-lightbox]'
       loop: true
     fade:
